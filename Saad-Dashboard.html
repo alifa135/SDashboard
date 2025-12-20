@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد مدیریتی هلدینگ صاد</title>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+        body { font-family: 'Vazirmatn', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- Icon Component Wrapper ---
+        const Icon = ({ name, size = 24, className = "" }) => {
+            useEffect(() => {
+                if (window.lucide) window.lucide.createIcons();
+            }, [name]);
+            return <i data-lucide={name} width={size} height={size} className={className}></i>;
+        };
+
+        // --- Custom Lightweight Charts ---
+
+        const CustomBarChart = ({ data, color = "bg-blue-600" }) => {
+            const [hoveredIndex, setHoveredIndex] = useState(null);
+            const maxValue = Math.max(...data.map(d => d.value));
+
+            return (
+                <div className="relative w-full h-48 flex items-end justify-between gap-2 pt-6 pb-2 px-2" dir="ltr">
+                    <div className="absolute inset-0 flex flex-col justify-between pointer-events-none text-xs text-slate-400 z-0">
+                        {[100, 50, 0].map((tick, i) => (
+                            <div key={i} className="border-b border-slate-100 w-full h-0 flex items-center">
+                                <span className="absolute -left-8 text-[10px]">{Math.round((maxValue * (tick/100)))}</span>
+                            </div>
+                        ))}
+                    </div>
+                    {data.map((item, index) => {
+                        const heightPercentage = (item.value / maxValue) * 100;
+                        return (
+                            <div 
+                                key={index} 
+                                className="relative flex flex-col items-center flex-1 h-full justify-end group cursor-pointer z-10"
+                                onMouseEnter={() => setHoveredIndex(index)}
+                                onMouseLeave={() => setHoveredIndex(null)}
+                            >
+                                {hoveredIndex === index && (
+                                    <div className="absolute -top-10 z-20 bg-slate-800 text-white text-[10px] rounded py-1 px-2 shadow-lg whitespace-nowrap mb-1">
+                                        {item.value.toLocaleString()}
+                                    </div>
+                                )}
+                                <div 
+                                    className={`w-full max-w-[20px] rounded-t-sm transition-all duration-300 ${color} ${hoveredIndex === index ? 'opacity-100' : 'opacity-70'}`}
+                                    style={{ height: `${heightPercentage}%` }}
+                                ></div>
+                                <span className={`text-[9px] mt-1 font-medium text-slate-500 truncate w-full text-center ${hoveredIndex === index ? 'text-blue-600' : ''}`}>
+                                    {item.name}
+                                </span>
+                            </div>
+                        );
+                    })}
+                </div>
+            );
+        };
+
+        const CustomAreaChart = ({ data, color = "text-emerald-500" }) => {
+            if (!data || data.length < 2) return null;
+            const height = 40;
+            const width = 100;
+            const max = Math.max(...data);
+            const min = Math.min(...data);
+            const range = max - min || 1;
+            const points = data.map((val, i) => {
+                const x = (i / (data.length - 1)) * width;
+                const y = height - ((val - min) / range) * height;
+                return `${x},${y}`;
+            }).join(' ');
+
+            return (
+                <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
+                    <polyline fill="none" stroke="currentColor" strokeWidth="2" points={points} className={color} vectorEffect="non-scaling-stroke" />
+                </svg>
+            );
+        };
+
+        const CustomDonutChart = ({ data }) => {
+            const [hoveredIndex, setHoveredIndex] = useState(null);
+            const total = data.reduce((acc, curr) => acc + curr.value, 0);
+            let cumulativeValue = 0;
+
+            const getCoordinatesForPercent = (percent) => {
+                const x = Math.cos(2 * Math.PI * percent);
+                const y = Math.sin(2 * Math.PI * percent);
+                return [x, y];
+            };
+
+            return (
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-8 h-full">
+                    <div className="relative w-40 h-40 shrink-0">
+                        <svg viewBox="-1 -1 2 2" className="transform -rotate-90 w-full h-full overflow-visible">
+                            {data.map((slice, index) => {
+                                const startPercent = cumulativeValue / total;
+                                const endPercent = (cumulativeValue + slice.value) / total;
+                                cumulativeValue += slice.value;
+                                const [startX, startY] = getCoordinatesForPercent(startPercent);
+                                const [endX, endY] = getCoordinatesForPercent(endPercent);
+                                const largeArcFlag = endPercent - startPercent > 0.5 ? 1 : 0;
+                                const pathData = `M ${startX} ${startY} A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY} L 0 0`;
+                                return (
+                                    <path
+                                        key={index}
+                                        d={pathData}
+                                        fill={slice.color}
+                                        stroke="white"
+                                        strokeWidth="0.05"
+                                        className={`transition-all duration-300 cursor-pointer ${hoveredIndex === index ? 'opacity-100 scale-105' : 'opacity-90 hover:opacity-100'}`}
+                                        onMouseEnter={() => setHoveredIndex(index)}
+                                        onMouseLeave={() => setHoveredIndex(null)}
+                                        style={{ transformOrigin: 'center' }}
+                                    />
+                                );
+                            })}
+                            <circle cx="0" cy="0" r="0.6" fill="white" />
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                            <span className="text-[10px] text-slate-400">کل درآمد</span>
+                            <span className="text-sm font-bold text-slate-800">100%</span>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-2 w-full">
+                        {data.map((item, index) => (
+                            <div 
+                                key={index} 
+                                className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors ${hoveredIndex === index ? 'bg-slate-50' : ''}`}
+                                onMouseEnter={() => setHoveredIndex(index)}
+                                onMouseLeave={() => setHoveredIndex(null)}
+                            >
+                                <div className="flex items-center gap-2">
+                                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }}></div>
+                                    <span className="text-xs font-medium text-slate-600">{item.name}</span>
+                                </div>
+                                <span className="text-xs font-bold text-slate-800">{Math.round((item.value / total) * 100)}%</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // --- Data ---
+
+        const totalRevenue = 1710 + 184 + 134.5 + 3.4 + 78 + 30 + 26.1 + 31; 
+        const totalProfit = 175 + 11 + 45 - 2.3 + 30 + 1.4 + 0.23 + 4.5;
+        const totalEmployees = 1012 + 450 + 160 + 28 + 91 + 51 + 14 + 21; 
+
+        const holdingSummary = {
+            totalRevenue: totalRevenue, 
+            totalProfit: totalProfit,
+            totalEmployees: totalEmployees,
+            yoyGrowth: 28.5,
+            monthlyTrend: [
+                { name: 'فروردین', value: 150 },
+                { name: 'اردیبهشت', value: 180 },
+                { name: 'خرداد', value: 210 },
+                { name: 'تیر', value: 350 },
+                { name: 'مرداد', value: 420 },
+                { name: 'شهریور', value: 480 },
+            ],
+            sectorDistribution: [
+                { name: 'پرداخت (PSP)', value: 1710, color: '#3b82f6' },
+                { name: 'سخت‌افزار و زیرساخت', value: 184 + 31, color: '#10b981' },
+                { name: 'نرم‌افزار بانکی', value: 134.5 + 78, color: '#f59e0b' },
+                { name: 'نوآوری و AI', value: 30 + 26.1, color: '#8b5cf6' },
+                { name: 'سایر (آموزش)', value: 3.4, color: '#64748b' },
+            ]
+        };
+
+        const subsidiariesData = [
+            { 
+                id: 1, 
+                name: 'پرداخت الکترونیک سپهر', 
+                shortName: 'سپهر (PAS)',
+                sector: 'پرداخت الکترونیک (PSP)', 
+                revenue: 1710, 
+                profit: 175, 
+                employees: 1012, 
+                growth: 14, 
+                status: 'excellent',
+                description: 'ارائه دهنده راهکارهای پرداخت الکترونیک و درگاه‌های پرداخت.',
+                mission: 'ارائه خدمات پرداخت الکترونیکی نوین و با کیفیت جهت برآورده کردن نیازهای مالی مشتریان با بالاترین استاندارد امنیت.',
+                projects: ['پلتفرم وامی‌پی (VamiPay)', 'سفر کارت بانک صادرات', 'کیوسک‌های مشارکتی EZCan', 'سامانه کشف تقلب'],
+                ceoName: 'احمد پیشگاه زاده',
+                ceoPhone: '09127252400',
+                ceoImage: 'https://way2pay.ir/wp-content/uploads/2023/12/Pishgahzadeh-3.jpg', 
+                icon: 'credit-card',
+                trendData: [1200, 1350, 1400, 1550, 1620, 1710]
+            },
+            { 
+                id: 3, 
+                name: 'داده‌پردازی خوارزمی', 
+                shortName: 'داده‌پردازی',
+                sector: 'نرم‌افزار بانکی', 
+                revenue: 134.5, 
+                profit: 45, 
+                employees: 160, 
+                growth: 125, 
+                status: 'excellent',
+                description: 'طراحی و توسعه سامانه‌های جامع بانکی (Core Banking).',
+                mission: 'ماموریت اصلی شرکت، تولید و پشتیبانی سیستم‌های نرم‌افزاری بانک صادرات ایران می باشد.',
+                projects: ['سامانه جامع منابع انسانی', 'سامانه جامع رفاه', 'سامانه مبارزه با پولشوئی', 'توسعه Core Banking'],
+                ceoName: 'آرمین جعفری',
+                ceoPhone: '09123148929',
+                ceoImage: 'https://way2pay.ir/wp-content/uploads/2024/05/Jafari.jpg', 
+                icon: 'cpu',
+                trendData: [60, 75, 90, 110, 125, 134.5]
+            },
+            { 
+                id: 2, 
+                name: 'توسعه فناوری اطلاعات خوارزمی', 
+                shortName: 'مفاخر',
+                sector: 'زیرساخت و سخت‌افزار', 
+                revenue: 184, 
+                profit: 11, 
+                employees: 450, 
+                growth: 37, 
+                status: 'good',
+                description: 'تولید و تامین تجهیزات بانکی، پشتیبانی و زیرساخت شبکه.',
+                mission: 'تولید و پشتیبانی تجهیزات بانکی و ارائه راهکارهای جامع سخت‌افزاری برای توسعه بانکداری الکترونیک.',
+                projects: ['توسعه شبکه ماشین‌های بانکی', 'پشتیبانی سخت‌افزاری شعب', 'بومی‌سازی تجهیزات بانکی', 'راهکارهای شعبه هوشمند'],
+                ceoName: 'محمدحسین خروطی',
+                ceoPhone: '09121127125',
+                ceoImage: 'https://kharazmico.com/images/khoroti.jpg', 
+                icon: 'server',
+                trendData: [130, 145, 150, 160, 175, 184]
+            },
+            { 
+                id: 8, 
+                name: 'مدیریت راهبری و زیرساخت صاد', 
+                shortName: 'زیرساخت صاد',
+                sector: 'امنیت و شبکه', 
+                revenue: 31, 
+                profit: 4.5, 
+                employees: 21, 
+                growth: 18, 
+                status: 'good',
+                description: 'تامین امنیت سایبری و مدیریت مرکز داده (Data Center).',
+                mission: 'تحقق افق تحول دیجیتال و ارائه سرویس‌های امنیتی زیرساختی و شبکه‌ای برای بانک و هلدینگ.',
+                projects: ['سرویس ضد فیشینگ فیش‌آیز', 'اصلاح معماری امنیتی شفق', 'پیاده‌سازی ISMS هلدینگ', 'جداسازی شبکه (RBI)'],
+                ceoName: 'سعید جمالی',
+                ceoPhone: '09122464596',
+                ceoImage: 'https://www.iaif.ir/images/members/saeed-jamali.jpg', 
+                icon: 'shield-check',
+                trendData: [26, 27, 28, 29, 30, 31]
+            },
+            { 
+                id: 5, 
+                name: 'فناوری و راه‌حل‌های هوشمند سپهر', 
+                shortName: 'هوشمند سپهر',
+                sector: 'بانکداری دیجیتال', 
+                revenue: 78, 
+                profit: 30, 
+                employees: 91, 
+                growth: 55, 
+                status: 'excellent',
+                description: 'طراحی سوپراپلیکیشن‌ها و راهکارهای نوین بانکداری.',
+                mission: 'پیشران رشد و ارتقاء پلتفرم‌های مبتنی بر خدمات مالی و پرداخت در کلاس جهانی.',
+                projects: ['سوپراپلیکیشن سپینو', 'سامانه توثیق الکترونیک (ست)', 'چکنو (چک امن دیجیتال)', 'ریال دیجیتال'],
+                ceoName: 'حمید ارجمندی',
+                ceoPhone: '09125168171',
+                ceoImage: '', 
+                icon: 'briefcase',
+                trendData: [50, 55, 60, 68, 72, 78]
+            },
+            { 
+                id: 7, 
+                name: 'داده و هوش مصنوعی الگوریتم', 
+                shortName: 'الگوریتم',
+                sector: 'هوش مصنوعی و داده', 
+                revenue: 26.1, 
+                profit: 0.23, 
+                employees: 14, 
+                growth: 10, 
+                status: 'excellent',
+                description: 'تحلیل کلان داده (Big Data) و سرویس‌های مبتنی بر AI.',
+                mission: 'خلق ارزش از داده‌ها و توسعه راهکارهای مبتنی بر هوش مصنوعی برای صنعت بانکداری.',
+                projects: ['سامانه سیگما (API Gateway)', 'هاب هویت دیجیتال', 'سامانه مدیریت کانال', 'دستیار هوشمند بانکی'],
+                ceoName: 'حمید کریمی',
+                ceoPhone: '09125590082',
+                ceoImage: 'https://scimet.qut.ac.ir/API/User/Avatar/Hamid_Karimi', 
+                icon: 'activity',
+                trendData: [18, 20, 22, 24, 25, 26.1]
+            },
+            { 
+                id: 6, 
+                name: 'پیشگامان فناوری‌های نوین صاد', 
+                shortName: 'پیشگامان',
+                sector: 'نوآوری و کسب‌وکار', 
+                revenue: 30, 
+                profit: 1.4, 
+                employees: 51, 
+                growth: 466, 
+                status: 'excellent',
+                description: 'بازوی نوآوری، مدیریت باشگاه مشتریان و زنجیره تامین مالی.',
+                mission: 'ارائه خدمات نوین بانکی هوشمند، لندتک (LendTech) و زنجیره تامین مالی (SCF).',
+                projects: ['پلتفرم جامع لندتک', 'سرویس خرید اعتباری (BNPL)', 'تامین مالی زنجیره تامین', 'Smart Banking'],
+                ceoName: 'آقای هرمزی',
+                ceoPhone: '09122718985',
+                ceoImage: '', 
+                icon: 'lightbulb',
+                trendData: [5, 10, 15, 20, 25, 30]
+            },
+            { 
+                id: 4, 
+                name: 'گسترش انفورماتیک ایران', 
+                shortName: 'گسترش',
+                sector: 'آموزش و ترویج', 
+                revenue: 3.4, 
+                profit: -2.3, 
+                employees: 28, 
+                growth: -10, 
+                status: 'warning',
+                description: 'خدمات پشتیبانی فنی، آموزش و تامین تجهیزات شعب.',
+                mission: 'ترویج، توسعه و آموزش کاربردی در حوزه فناوری اطلاعات و تربیت نیروی انسانی متخصص.',
+                projects: ['سامانه اختصاصی LMS', 'دیجیتالی‌سازی محتوا', 'دوره‌های تحول دیجیتال', 'همکاری دانشگاهی'],
+                ceoName: 'آقای عطاری',
+                ceoPhone: '09122001973',
+                ceoImage: '', 
+                icon: 'building-2',
+                trendData: [3.8, 3.7, 3.6, 3.5, 3.4, 3.4]
+            },
+        ];
+
+        // --- Components ---
+
+        const Card = ({ title, value, subtext, icon, trend, trendValue, color = "blue", chartData }) => (
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                <div className="flex justify-between items-start">
+                    <div>
+                        <p className="text-sm text-slate-500 font-medium mb-1">{title}</p>
+                        <h3 className="text-2xl font-bold text-slate-800">{value}</h3>
+                    </div>
+                    <div className={`p-3 rounded-lg bg-${color}-50 text-${color}-600`}>
+                        <Icon name={icon} size={24} />
+                    </div>
+                </div>
+                <div className="mt-4 flex items-center justify-between">
+                    <div className="flex items-center text-sm">
+                        {trend === 'up' ? (
+                            <span className="text-emerald-500 flex items-center font-medium bg-emerald-50 px-2 py-0.5 rounded">
+                                <Icon name="trending-up" size={16} className="ml-1" />
+                                {trendValue}%
+                            </span>
+                        ) : trend === 'down' ? (
+                            <span className="text-rose-500 flex items-center font-medium bg-rose-50 px-2 py-0.5 rounded">
+                                <Icon name="trending-down" size={16} className="ml-1" />
+                                {trendValue}%
+                            </span>
+                        ) : (
+                            <span className="text-slate-400 flex items-center">
+                                <Icon name="activity" size={16} className="ml-1" />
+                                بدون تغییر
+                            </span>
+                        )}
+                        <span className="text-slate-400 mr-2 text-xs">{subtext}</span>
+                    </div>
+                    <div className="w-20 h-10">
+                        <CustomAreaChart data={chartData} color={trend === 'up' ? 'text-emerald-500' : 'text-rose-500'} />
+                    </div>
+                </div>
+            </div>
+        );
+
+        const CompanyCardFull = ({ company }) => {
+            const [copyFeedback, setCopyFeedback] = useState(false);
+
+            const handleCopy = (text) => {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-9999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    setCopyFeedback(true);
+                    setTimeout(() => setCopyFeedback(false), 2000);
+                } catch (err) { console.error(err); }
+                document.body.removeChild(textArea);
+            };
+
+            return (
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-shadow">
+                    <div className="p-6 border-b border-slate-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center shrink-0">
+                                <Icon name={company.icon} size={24} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-lg text-slate-800">{company.name}</h3>
+                                <p className="text-sm text-slate-500">{company.sector}</p>
+                            </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-3 bg-slate-50 p-2 rounded-xl border border-slate-100 w-full md:w-auto">
+                            <div className="w-10 h-10 rounded-full overflow-hidden border border-white bg-white shrink-0">
+                                {company.ceoImage ? (
+                                    <img src={company.ceoImage} alt={company.ceoName} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-slate-300">
+                                        <Icon name="user" size={20} />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex-1">
+                                <p className="text-[10px] text-slate-400">مدیرعامل</p>
+                                <p className="text-xs font-bold text-slate-800">{company.ceoName}</p>
+                            </div>
+                            <button 
+                                onClick={() => handleCopy(company.ceoPhone)}
+                                className={`p-2 rounded-lg transition-colors ${copyFeedback ? 'bg-emerald-100 text-emerald-600' : 'bg-white text-blue-600 hover:bg-blue-50'}`}
+                                title={company.ceoPhone}
+                            >
+                                <Icon name={copyFeedback ? "check" : "phone"} size={16} />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <div className="lg:col-span-3 space-y-4">
+                            <div className="bg-slate-50 p-3 rounded-xl flex justify-between items-center">
+                                <span className="text-xs text-slate-500">درآمد</span>
+                                <span className="font-bold text-slate-800">{company.revenue.toLocaleString()} م.ت</span>
+                            </div>
+                            <div className="bg-slate-50 p-3 rounded-xl flex justify-between items-center">
+                                <span className="text-xs text-slate-500">سود خالص</span>
+                                <span className={`font-bold ${company.profit > 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{company.profit.toLocaleString()} م.ت</span>
+                            </div>
+                            <div className="bg-slate-50 p-3 rounded-xl flex justify-between items-center">
+                                <span className="text-xs text-slate-500">پرسنل</span>
+                                <span className="font-bold text-slate-700">{company.employees} نفر</span>
+                            </div>
+                        </div>
+
+                        <div className="lg:col-span-5 flex flex-col gap-4">
+                            <div className="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                                <h4 className="text-xs font-bold text-blue-700 mb-1 flex items-center gap-1">
+                                    <Icon name="flag" size={14} />
+                                    مأموریت
+                                </h4>
+                                <p className="text-xs text-slate-600 leading-relaxed text-justify">
+                                    {company.mission}
+                                </p>
+                            </div>
+
+                            <div>
+                                <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                                    <Icon name="layers" size={16} className="text-indigo-500"/>
+                                    پروژه‌های کلیدی
+                                </h4>
+                                <div className="space-y-2">
+                                    {company.projects.slice(0, 3).map((proj, i) => (
+                                        <div key={i} className="flex items-center gap-2 text-xs text-slate-600">
+                                            <Icon name="check-circle-2" size={14} className="text-emerald-500 shrink-0" />
+                                            <span className="truncate">{proj}</span>
+                                        </div>
+                                    ))}
+                                    {company.projects.length > 3 && (
+                                        <p className="text-[10px] text-slate-400 pr-6">و {company.projects.length - 3} پروژه دیگر...</p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="lg:col-span-4 flex flex-col justify-end">
+                            <p className="text-xs text-center text-slate-400 mb-2">روند درآمدی (۶ ماهه)</p>
+                            <div className="h-32 w-full">
+                                <CustomBarChart data={company.trendData ? company.trendData.map((val, i) => ({name: holdingSummary.monthlyTrend[i].name, value: val})) : []} color="bg-indigo-500" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            return (
+                <div className="min-h-screen bg-slate-50 text-slate-800 font-[Vazirmatn,system-ui,sans-serif]" dir="rtl">
+                    <main className="max-w-7xl mx-auto p-4 md:p-8">
+                        {/* Header */}
+                        <header className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
+                            <div className="flex items-center gap-4 w-full md:w-auto">
+                                <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                                    <Icon name="building-2" size={28} />
+                                </div>
+                                <div>
+                                    <h1 className="font-bold text-xl text-slate-800">هلدینگ فناوری و نوآوری صاد</h1>
+                                    <p className="text-sm text-slate-500">داشبورد جامع مدیریتی (یکپارچه)</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-4 w-full md:w-auto">
+                                <div className="relative flex-1 md:flex-none">
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                                        <Icon name="search" size={18} />
+                                    </div>
+                                    <input 
+                                        type="text" 
+                                        placeholder="جستجو در شرکت‌ها..." 
+                                        className="bg-white border border-slate-200 rounded-xl pr-10 pl-4 py-2.5 w-full md:w-64 text-sm focus:ring-2 focus:ring-blue-100 outline-none transition-all shadow-sm"
+                                    />
+                                </div>
+                                <div className="hidden md:flex items-center gap-2 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm">
+                                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">م</div>
+                                    <span className="text-sm font-bold text-slate-700 px-2">مهندس ترابیان</span>
+                                </div>
+                            </div>
+                        </header>
+
+                        {/* Overview Section */}
+                        <section className="mb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <h2 className="text-lg font-bold text-slate-700 mb-6 flex items-center gap-2">
+                                <Icon name="activity" size={20} className="text-blue-600" />
+                                نمای کلی عملکرد هلدینگ
+                            </h2>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                                <Card 
+                                    title="درآمد تجمیعی" 
+                                    value={`${holdingSummary.totalRevenue.toLocaleString()} همت`}
+                                    icon="dollar-sign" 
+                                    trend="up" 
+                                    trendValue={holdingSummary.yoyGrowth}
+                                    subtext="نسبت به سال گذشته"
+                                    color="blue"
+                                    chartData={holdingSummary.monthlyTrend.map(m => m.value)}
+                                />
+                                <Card 
+                                    title="سود خالص کل" 
+                                    value={`${holdingSummary.totalProfit.toLocaleString()} میلیارد`}
+                                    icon="trending-up" 
+                                    trend="up" 
+                                    trendValue={14.2}
+                                    subtext="فراتر از بودجه مصوب"
+                                    color="emerald"
+                                    chartData={[100, 120, 140, 130, 160, 180]}
+                                />
+                                <Card 
+                                    title="حاشیه سود خالص" 
+                                    value={`${((holdingSummary.totalProfit / holdingSummary.totalRevenue) * 100).toFixed(1)}٪`} 
+                                    icon="pie-chart" 
+                                    trend="up" 
+                                    trendValue={1.5}
+                                    subtext="افزایش بهره‌وری"
+                                    color="indigo"
+                                    chartData={[10, 11, 11.5, 12, 12.5, 13]}
+                                />
+                                <Card 
+                                    title="تعداد کل پرسنل" 
+                                    value={`${holdingSummary.totalEmployees.toLocaleString()}`} 
+                                    icon="users" 
+                                    trend="up" 
+                                    trendValue={5}
+                                    subtext="نیروی انسانی فعال"
+                                    color="amber"
+                                    chartData={[1500, 1600, 1650, 1700, 1750, 1827]}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h3 className="font-bold text-slate-800">مقایسه درآمد شرکت‌های تابعه</h3>
+                                    </div>
+                                    <CustomBarChart data={subsidiariesData.map(s => ({ name: s.shortName, value: s.revenue }))} />
+                                </div>
+                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
+                                    <h3 className="font-bold text-slate-800 mb-4">توزیع درآمد (حوزه فعالیت)</h3>
+                                    <div className="flex-1 min-h-[200px]">
+                                        <CustomDonutChart data={holdingSummary.sectorDistribution} />
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* Subsidiaries List */}
+                        <section className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150">
+                            <h2 className="text-lg font-bold text-slate-700 mb-6 flex items-center gap-2">
+                                <Icon name="briefcase" size={20} className="text-blue-600" />
+                                جزئیات عملکرد شرکت‌های تابعه
+                            </h2>
+                            
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-20">
+                                {subsidiariesData.map((company) => (
+                                    <CompanyCardFull key={company.id} company={company} />
+                                ))}
+                            </div>
+                        </section>
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
