@@ -61,7 +61,10 @@ const App = () => {
       status: 'active',
       mission: 'تولید و پشتیبانی تجهیزات بانکی و ارائه راهکارهای جامع سخت‌افزاری.',
       projects: ['توسعه شبکه ماشین‌های بانکی', 'پشتیبانی شعب'],
-      improvements: ['بهینه‌سازی زنجیره تأمین قطعات یدکی'],
+      improvements: [
+        'قرارداد خرید POS',
+        'بهبود شاخص خدمات شعب'
+      ],
       ceoName: 'محمدحسین خروطی',
       icon: <Server size={20} />,
       color: '#10b981'
@@ -217,6 +220,19 @@ const App = () => {
     <div className="min-h-screen bg-[#F8FAFC] text-slate-800 p-4 md:p-8 font-sans" dir="rtl">
       <div className="max-w-7xl mx-auto">
         
+        {/* Top Logo Section */}
+        <div className="flex justify-center mb-8">
+            <img 
+              src="https://saad-holding.ir/wp-content/uploads/2023/12/logo-sad-holding.png" 
+              alt="Logo Holding Saad" 
+              className="h-16 object-contain"
+              onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "https://saad-holding.ir/wp-content/themes/saad-holding/assets/images/logo.png";
+              }}
+            />
+        </div>
+
         {/* Header */}
         <nav className="flex flex-col md:flex-row items-center justify-between mb-10 gap-6">
           <div className="flex items-center gap-4">
@@ -280,7 +296,7 @@ const App = () => {
                 </div>
               </div>
 
-              {/* Improvements Field - IMPORTANT SECTION */}
+              {/* Improvements Field */}
               <div className="px-6 py-4 bg-amber-50/20">
                 <div className="flex items-center gap-2 mb-2">
                   <AlertCircle size={14} className="text-amber-500" />
