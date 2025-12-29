@@ -6,30 +6,28 @@ import {
   TrendingDown, 
   Users, 
   DollarSign, 
+  PieChart, 
   Activity, 
   Cpu, 
   CreditCard, 
   Server, 
   Lightbulb, 
   CheckCircle2, 
+  Phone, 
   User,
   Layers,
+  Flag,
+  ChevronLeft,
   Clock,
   ShieldCheck,
   GraduationCap,
-  AlertCircle,
-  BarChart3,
-  ExternalLink,
-  ChevronRight,
-  Target,
-  Rocket
+  AlertCircle
 } from 'lucide-react';
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState('all');
-
-  // --- Data ---
+  
+  // --- Data: All 9 Companies with "Improvements" field ---
   const subsidiariesData = [
     { 
       id: 1, 
@@ -39,16 +37,17 @@ const App = () => {
       revenue: 1710, 
       profit: 175, 
       employees: 1012, 
-      targetAchievement: 85,
+      growth: 14, 
       status: 'active',
+      mission: 'ارائه خدمات پرداخت الکترونیکی نوین و با کیفیت جهت برآورده کردن نیازهای مالی مشتریان با بالاترین استاندارد امنیت.',
+      projects: ['پلتفرم وامی‌پی (VamiPay)', 'سفر کارت بانک صادرات'],
       improvements: [
         'ارتقای رتبه در سهم تراکنش‌های بانک صادرات',
         'ارتقای رتبه در ارزیابی ماهانه شاپرک'
       ],
       ceoName: 'احمد پیشگاه زاده',
-      icon: <CreditCard size={24} />,
-      gradient: 'from-blue-500 to-indigo-600',
-      shadow: 'shadow-blue-200'
+      icon: <CreditCard size={20} />,
+      color: '#3b82f6'
     },
     { 
       id: 2, 
@@ -58,16 +57,14 @@ const App = () => {
       revenue: 184, 
       profit: 11, 
       employees: 450, 
-      targetAchievement: 72,
+      growth: 37, 
       status: 'active',
-      improvements: [
-        'قرارداد خرید POS',
-        'بهبود شاخص خدمات شعب'
-      ],
+      mission: 'تولید و پشتیبانی تجهیزات بانکی و ارائه راهکارهای جامع سخت‌افزاری.',
+      projects: ['توسعه شبکه ماشین‌های بانکی', 'پشتیبانی شعب'],
+      improvements: ['بهینه‌سازی زنجیره تأمین قطعات یدکی'],
       ceoName: 'محمدحسین خروطی',
-      icon: <Server size={24} />,
-      gradient: 'from-emerald-500 to-teal-600',
-      shadow: 'shadow-emerald-200'
+      icon: <Server size={20} />,
+      color: '#10b981'
     },
     { 
       id: 3, 
@@ -77,15 +74,16 @@ const App = () => {
       revenue: 134.5, 
       profit: 45, 
       employees: 160, 
-      targetAchievement: 91,
+      growth: 125, 
       status: 'active',
+      mission: 'تولید و پشتیبانی سیستم‌های نرم‌افزاری بانک صادرات ایران.',
+      projects: ['سامانه جامع منابع انسانی', 'سامانه مبارزه با پولشوئی'],
       improvements: [
         { text: 'حل چالش‌های سیستم HR', urgent: true }
       ],
       ceoName: 'آرمین جعفری',
-      icon: <Cpu size={24} />,
-      gradient: 'from-amber-500 to-orange-600',
-      shadow: 'shadow-amber-200'
+      icon: <Cpu size={20} />,
+      color: '#f59e0b'
     },
     { 
       id: 4, 
@@ -95,13 +93,14 @@ const App = () => {
       revenue: 3.4, 
       profit: -2.3, 
       employees: 28, 
-      targetAchievement: 40,
+      growth: -10, 
       status: 'active',
+      mission: 'ترویج، توسعه و آموزش کاربردی در حوزه فناوری اطلاعات.',
+      projects: ['سامانه اختصاصی LMS'],
       improvements: ['توقف فعالیت آموزش عالی'],
       ceoName: 'آقای عطاری',
-      icon: <GraduationCap size={24} />,
-      gradient: 'from-slate-500 to-slate-700',
-      shadow: 'shadow-slate-200'
+      icon: <GraduationCap size={20} />,
+      color: '#64748b'
     },
     { 
       id: 5, 
@@ -111,13 +110,14 @@ const App = () => {
       revenue: 78, 
       profit: 30, 
       employees: 91, 
-      targetAchievement: 88,
+      growth: 55, 
       status: 'active',
-      improvements: ['حل مشکل فعال شدن رمز دوم در سپینو'],
+      mission: 'پیشران رشد و ارتقاء پلتفرم‌های مبتنی بر خدمات مالی.',
+      projects: ['سوپراپلیکیشن سپینو', 'چکنو'],
+      improvements: ['حل مشکل فعال شدن CVV2 در سپینو'],
       ceoName: 'حمید ارجمندی',
-      icon: <Activity size={24} />,
-      gradient: 'from-violet-500 to-purple-600',
-      shadow: 'shadow-purple-200'
+      icon: <Activity size={20} />,
+      color: '#8b5cf6'
     },
     { 
       id: 6, 
@@ -127,13 +127,14 @@ const App = () => {
       revenue: 30, 
       profit: 1.4, 
       employees: 51, 
-      targetAchievement: 95,
+      growth: 466, 
       status: 'active',
+      mission: 'ارائه خدمات نوین بانکی هوشمند و لندتک.',
+      projects: ['پلتفرم جامع لندتک', 'سرویس BNPL'],
       improvements: ['مرکز تماس', 'پرتال جدید بانک صادرات'],
       ceoName: 'آقای هرمزی',
-      icon: <Lightbulb size={24} />,
-      gradient: 'from-rose-500 to-pink-600',
-      shadow: 'shadow-rose-200'
+      icon: <Lightbulb size={20} />,
+      color: '#ec4899'
     },
     { 
       id: 7, 
@@ -143,13 +144,14 @@ const App = () => {
       revenue: 26.1, 
       profit: 0.23, 
       employees: 14, 
-      targetAchievement: 65,
+      growth: 10, 
       status: 'active',
+      mission: 'خلق ارزش از داده‌ها و توسعه راهکارهای هوش مصنوعی.',
+      projects: ['سامانه سیگما', 'هاب هویت دیجیتال'],
       improvements: ['قرارداد با دیبارایان'],
       ceoName: 'حمید کریمی',
-      icon: <Target size={24} />,
-      gradient: 'from-cyan-500 to-blue-600',
-      shadow: 'shadow-cyan-200'
+      icon: <Activity size={20} />,
+      color: '#06b6d4'
     },
     { 
       id: 8, 
@@ -159,13 +161,14 @@ const App = () => {
       revenue: 31, 
       profit: 4.5, 
       employees: 21, 
-      targetAchievement: 78,
+      growth: 18, 
       status: 'active',
+      mission: 'تحقق افق تحول دیجیتال و ارائه سرویس‌های امنیتی.',
+      projects: ['سرویس ضد فیشینگ فیش‌آیز'],
       improvements: ['ارائه پروپوزال برون‌سپاری خدمات هلدینگ'],
       ceoName: 'سعید جمالی',
-      icon: <ShieldCheck size={24} />,
-      gradient: 'from-red-500 to-rose-700',
-      shadow: 'shadow-red-200'
+      icon: <ShieldCheck size={20} />,
+      color: '#f43f5e'
     },
     { 
       id: 9, 
@@ -175,13 +178,14 @@ const App = () => {
       revenue: 0, 
       profit: 0, 
       employees: 5, 
-      targetAchievement: 10,
+      growth: 0, 
       status: 'founding',
+      mission: 'تحقیق و توسعه در لبه فناوری‌های هوشمند.',
+      projects: ['طراحی ساختار اولیه'],
       improvements: ['آموزش و نوآوری'],
       ceoName: 'در حال تعیین',
-      icon: <Rocket size={24} />,
-      gradient: 'from-gray-400 to-gray-600',
-      shadow: 'shadow-gray-200'
+      icon: <Clock size={20} />,
+      color: '#94a3b8'
     },
   ];
 
@@ -190,213 +194,157 @@ const App = () => {
     [searchTerm]
   );
 
+  const StatCard = ({ title, value, sub, icon: IconComp, trend, colorClass }) => (
+    <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+      <div className="flex justify-between items-start mb-4">
+        <div className={`p-3 rounded-2xl ${colorClass} bg-opacity-10 text-opacity-100`}>
+          <IconComp size={22} className={colorClass.replace('bg-', 'text-')} />
+        </div>
+        {trend !== 0 && (
+          <div className={`flex items-center gap-1 text-xs font-bold ${trend > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+            {trend > 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+            {Math.abs(trend)}%
+          </div>
+        )}
+      </div>
+      <p className="text-slate-500 text-xs font-medium mb-1">{title}</p>
+      <h3 className="text-xl font-black text-slate-800">{value}</h3>
+      <p className="text-[10px] text-slate-400 mt-1">{sub}</p>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-[#F0F4F8] text-slate-800 p-4 md:p-8 font-sans transition-all duration-500" dir="rtl">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-800 p-4 md:p-8 font-sans" dir="rtl">
       <div className="max-w-7xl mx-auto">
         
-        {/* Animated Top Header */}
-        <header className="flex flex-col items-center mb-12">
-            <div className="relative group mb-6">
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-                <img 
-                  src="https://saad-holding.ir/wp-content/uploads/2023/12/logo-sad-holding.png" 
-                  alt="Holding Logo" 
-                  className="relative h-20 md:h-24 object-contain transition-transform duration-500 group-hover:scale-105"
-                  onError={(e) => { e.target.src = "https://saad-holding.ir/wp-content/themes/saad-holding/assets/images/logo.png"; }}
-                />
+        {/* Header */}
+        <nav className="flex flex-col md:flex-row items-center justify-between mb-10 gap-6">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-blue-200">
+              <Building2 size={30} />
             </div>
-            <div className="text-center">
-                <h1 className="text-3xl md:text-4xl font-black bg-gradient-to-r from-blue-900 to-indigo-700 bg-clip-text text-transparent">اکوسیستم فناوری هوشمند صاد</h1>
-                <p className="text-slate-500 mt-2 font-medium flex items-center justify-center gap-2">
-                    <Activity size={16} className="text-blue-500 animate-pulse" />
-                    پایش لحظه‌ای عملکرد و اهداف استراتژیک شرکت‌ها
-                </p>
+            <div>
+              <h1 className="text-2xl font-black tracking-tight text-slate-900">هلدینگ فناوری صاد</h1>
+              <div className="flex items-center gap-2 text-slate-500 text-sm font-medium">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                داشبورد جامع پایش پورتفو
+              </div>
             </div>
-        </header>
+          </div>
 
-        {/* Global Controls & Search */}
-        <div className="flex flex-col md:flex-row gap-4 mb-10 items-center justify-between bg-white/50 backdrop-blur-md p-4 rounded-3xl border border-white/50 shadow-xl shadow-slate-200/50">
-            <div className="flex gap-2 p-1 bg-slate-100 rounded-2xl w-full md:w-auto">
-                {['all', 'active', 'founding'].map((tab) => (
-                    <button 
-                        key={tab}
-                        onClick={() => setActiveTab(tab)}
-                        className={`px-6 py-2 rounded-xl text-xs font-black transition-all ${activeTab === tab ? 'bg-white shadow-md text-blue-600' : 'text-slate-500 hover:text-slate-800'}`}
-                    >
-                        {tab === 'all' ? 'همه واحدها' : tab === 'active' ? 'فعال' : 'در حال تأسیس'}
-                    </button>
-                ))}
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="relative group flex-1 md:w-72">
+              <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              <input 
+                type="text" 
+                placeholder="جستجو در نام یا فعالیت..." 
+                className="w-full bg-white border-none rounded-2xl pr-12 pl-4 py-3.5 text-sm shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-            <div className="relative w-full md:w-96">
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
-                <input 
-                    type="text" 
-                    placeholder="جستجو در نام، مدیر یا حوزه فعالیت..." 
-                    className="w-full bg-white border-none rounded-2xl pr-12 pl-4 py-3 text-sm shadow-inner ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-            </div>
+          </div>
+        </nav>
+
+        {/* Quick Metrics */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          <StatCard title="درآمد کل" value="2,225 همت" sub="۹ شرکت تابعه" icon={DollarSign} trend={24.5} colorClass="bg-blue-600" />
+          <StatCard title="سود خالص" value="264 میلیارد" sub="خالص عملیاتی" icon={TrendingUp} trend={18.2} colorClass="bg-emerald-600" />
+          <StatCard title="نیروی انسانی" value="1,832 نفر" sub="متخصصین فعال" icon={Users} trend={5.4} colorClass="bg-violet-600" />
+          <StatCard title="وضعیت پورتفو" value="۹ شرکت" sub="۸ فعال / ۱ در شرف" icon={Layers} trend={0} colorClass="bg-amber-600" />
         </div>
 
         {/* Companies Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredCompanies
-            .filter(c => activeTab === 'all' || c.status === activeTab)
-            .map((company) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-24">
+          {filteredCompanies.map((company) => (
             <div 
               key={company.id} 
-              className={`relative bg-white rounded-[2.5rem] border-t-8 transition-all duration-500 flex flex-col group hover:-translate-y-3 hover:shadow-2xl overflow-hidden ${
-                company.status === 'founding' ? 'border-gray-400 shadow-sm' : `border-transparent ${company.shadow}`
+              className={`bg-white rounded-[2rem] border transition-all duration-300 flex flex-col group overflow-hidden ${
+                company.status === 'founding' 
+                ? 'border-dashed border-slate-300 shadow-none' 
+                : 'border-slate-100 shadow-sm hover:shadow-2xl hover:border-blue-100'
               }`}
-              style={{ borderTopColor: company.status === 'founding' ? '#94a3b8' : 'transparent' }}
             >
-              {/* Background Gradient Accent for Active Cards */}
-              {company.status !== 'founding' && (
-                <div className={`absolute top-0 inset-x-0 h-32 bg-gradient-to-br ${company.gradient} opacity-[0.03] group-hover:opacity-10 transition-opacity`}></div>
-              )}
-
-              {/* Card Header & Dynamic Icon */}
-              <div className="p-8 pb-4 relative">
-                <div className="flex justify-between items-start mb-6">
-                  <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-white shadow-lg transform transition-transform group-hover:rotate-12 group-hover:scale-110 bg-gradient-to-br ${company.gradient}`}>
+              {/* Card Header */}
+              <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-gradient-to-l from-transparent to-slate-50/30">
+                <div className="flex items-center gap-3">
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+                    company.status === 'founding' ? 'bg-slate-100 text-slate-400' : 'bg-slate-50 text-slate-600 group-hover:bg-blue-600 group-hover:text-white'
+                  }`}>
                     {company.icon}
                   </div>
-                  
-                  {/* Achievement Mini-Chart */}
-                  <div className="relative w-14 h-14 flex items-center justify-center">
-                    <svg className="w-full h-full transform -rotate-90">
-                        <circle cx="28" cy="28" r="24" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-slate-100" />
-                        <circle 
-                            cx="28" cy="28" r="24" stroke="currentColor" strokeWidth="4" fill="transparent" 
-                            strokeDasharray={150}
-                            strokeDashoffset={150 - (150 * company.targetAchievement) / 100}
-                            className={`${company.status === 'founding' ? 'text-gray-400' : 'text-blue-500'} transition-all duration-1000 ease-out`}
-                        />
-                    </svg>
-                    <span className="absolute text-[10px] font-black text-slate-800">{company.targetAchievement}%</span>
-                  </div>
-                </div>
-
-                <h3 className="text-lg font-black text-slate-800 group-hover:text-blue-700 transition-colors">{company.name}</h3>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1">{company.sector}</p>
-              </div>
-
-              {/* Improvements Section with Graphic Elements */}
-              <div className="px-8 py-4 mb-2">
-                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 group-hover:bg-white group-hover:border-blue-100 transition-all">
-                    <div className="flex items-center gap-2 mb-3">
-                        <div className="p-1 rounded bg-amber-100 text-amber-600">
-                            <AlertCircle size={12} />
-                        </div>
-                        <span className="text-[10px] font-black text-slate-500 uppercase">اولویت‌های بهبود</span>
-                    </div>
-                    <ul className="space-y-2">
-                        {company.improvements.map((imp, idx) => {
-                            const isUrgent = typeof imp === 'object' && imp.urgent;
-                            const text = typeof imp === 'object' ? imp.text : imp;
-                            return (
-                                <li key={idx} className={`flex items-start gap-2 text-[11px] leading-relaxed ${isUrgent ? 'text-rose-600 font-black' : 'text-slate-600'}`}>
-                                    <div className={`mt-1.5 w-1.5 h-1.5 rounded-full shrink-0 ${isUrgent ? 'bg-rose-600 animate-pulse' : 'bg-blue-400'}`}></div>
-                                    {text}
-                                </li>
-                            );
-                        })}
-                    </ul>
-                </div>
-              </div>
-
-              {/* Data Visuals */}
-              <div className="px-8 grid grid-cols-3 gap-3 mb-6">
-                <div className="text-center group/stat">
-                    <p className="text-[9px] font-bold text-slate-400 mb-1">درآمد (همت)</p>
-                    <div className="bg-slate-50 rounded-xl py-2 group-hover/stat:bg-blue-50 transition-colors font-black text-sm text-slate-800">
-                        {company.revenue || '---'}
-                    </div>
-                </div>
-                <div className="text-center group/stat">
-                    <p className="text-[9px] font-bold text-slate-400 mb-1">سود (میلیارد)</p>
-                    <div className="bg-slate-50 rounded-xl py-2 group-hover/stat:bg-emerald-50 transition-colors font-black text-sm text-emerald-600">
-                        {company.profit || '---'}
-                    </div>
-                </div>
-                <div className="text-center group/stat">
-                    <p className="text-[9px] font-bold text-slate-400 mb-1">پرسنل (نفر)</p>
-                    <div className="bg-slate-50 rounded-xl py-2 group-hover/stat:bg-violet-50 transition-colors font-black text-sm text-blue-600">
-                        {company.employees}
-                    </div>
-                </div>
-              </div>
-
-              {/* Footer Controls */}
-              <div className="mt-auto px-6 py-5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full border-2 border-white shadow-sm overflow-hidden bg-white flex items-center justify-center">
-                    <User size={16} className="text-slate-300" />
-                  </div>
                   <div>
-                    <p className="text-[7px] text-slate-400 font-bold uppercase leading-none">مدیر عامل</p>
-                    <p className="text-[10px] font-black text-slate-700">{company.ceoName}</p>
+                    <h4 className="font-black text-slate-800 text-sm leading-tight">{company.name}</h4>
+                    <span className="text-[9px] text-slate-400 font-bold uppercase">{company.sector}</span>
                   </div>
-                </div>
-                <div className="flex gap-2">
-                    <button className="p-2 rounded-lg bg-white shadow-sm border border-slate-200 text-slate-400 hover:text-blue-600 hover:border-blue-200 transition-all">
-                        <BarChart3 size={16} />
-                    </button>
-                    <button className="px-3 py-2 rounded-lg bg-white shadow-sm border border-slate-200 text-slate-600 hover:bg-blue-600 hover:text-white transition-all text-[10px] font-black flex items-center gap-1">
-                        جزئیات <ChevronRight size={12} />
-                    </button>
                 </div>
               </div>
 
-              {/* Founding Overlay Effect */}
-              {company.status === 'founding' && (
-                <div className="absolute top-4 left-4">
-                  <span className="flex items-center gap-1.5 bg-amber-100 text-amber-700 text-[9px] font-black px-3 py-1 rounded-full border border-amber-200 animate-bounce">
-                    <Clock size={10} /> در حال تأسیس
-                  </span>
+              {/* Improvements Field - IMPORTANT SECTION */}
+              <div className="px-6 py-4 bg-amber-50/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertCircle size={14} className="text-amber-500" />
+                  <span className="text-[10px] font-black text-amber-600 uppercase">نکات قابل بهبود</span>
                 </div>
-              )}
+                <ul className="space-y-1.5">
+                  {company.improvements.map((imp, idx) => {
+                    const isUrgent = typeof imp === 'object' && imp.urgent;
+                    const text = typeof imp === 'object' ? imp.text : imp;
+                    
+                    return (
+                      <li key={idx} className={`flex items-start gap-2 text-[11px] leading-relaxed ${isUrgent ? 'text-rose-600 font-black' : 'text-slate-600'}`}>
+                        <span className={`mt-1.5 w-1 h-1 rounded-full shrink-0 ${isUrgent ? 'bg-rose-600 animate-pulse-fast' : 'bg-slate-400'}`}></span>
+                        {text}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+
+              {/* Stats */}
+              <div className="p-5 grid grid-cols-3 gap-2 mt-auto">
+                <div className="bg-slate-50 p-2.5 rounded-2xl text-center">
+                  <p className="text-[8px] text-slate-400 mb-1 font-bold">درآمد</p>
+                  <p className="text-xs font-black text-slate-800">{company.revenue} <span className="text-[8px]">همت</span></p>
+                </div>
+                <div className="bg-slate-50 p-2.5 rounded-2xl text-center">
+                  <p className="text-[8px] text-slate-400 mb-1 font-bold">سود</p>
+                  <p className="text-xs font-black text-emerald-600">{company.profit} <span className="text-[8px]">م</span></p>
+                </div>
+                <div className="bg-slate-50 p-2.5 rounded-2xl text-center">
+                  <p className="text-[8px] text-slate-400 mb-1 font-bold">نیرو</p>
+                  <p className="text-xs font-black text-blue-600">{company.employees} <span className="text-[8px]">نفر</span></p>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="px-6 py-4 bg-slate-50/30 flex items-center justify-between border-t border-slate-50">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-full bg-white border border-slate-200 flex items-center justify-center">
+                    <User size={14} className="text-slate-300" />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-600">{company.ceoName}</span>
+                </div>
+                {company.status === 'founding' && (
+                  <span className="text-[9px] font-black text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full animate-pulse">در حال تأسیس</span>
+                )}
+              </div>
             </div>
           ))}
-        </div>
-
-        {/* Floating Summary Bar */}
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-xl text-white px-8 py-4 rounded-3xl shadow-2xl flex items-center gap-12 z-50 border border-white/10 hidden md:flex">
-            <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-500 rounded-lg"><DollarSign size={20}/></div>
-                <div>
-                    <p className="text-[10px] text-slate-400 font-bold">ارزش کل پورتفو</p>
-                    <p className="text-sm font-black text-blue-400">2,225.1 همت</p>
-                </div>
-            </div>
-            <div className="w-px h-8 bg-white/10"></div>
-            <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-500 rounded-lg"><CheckCircle2 size={20}/></div>
-                <div>
-                    <p className="text-[10px] text-slate-400 font-bold">پروژه‌های استراتژیک</p>
-                    <p className="text-sm font-black text-emerald-400">۴۲ فعال</p>
-                </div>
-            </div>
-            <div className="w-px h-8 bg-white/10"></div>
-            <div className="flex items-center gap-3">
-                <div className="p-2 bg-purple-500 rounded-lg"><Layers size={20}/></div>
-                <div>
-                    <p className="text-[10px] text-slate-400 font-bold">واحدهای تابعه</p>
-                    <p className="text-sm font-black text-purple-400">۹ شرکت</p>
-                </div>
-            </div>
         </div>
 
       </div>
 
       <style>{`
         @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
-        body { font-family: 'Vazirmatn', sans-serif; background-color: #F0F4F8; }
+        body { font-family: 'Vazirmatn', sans-serif; }
         .font-black { font-weight: 900; }
         @keyframes pulse-fast {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.5; transform: scale(1.5); }
+        }
+        .animate-pulse-fast {
+          animation: pulse-fast 0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
       `}</style>
     </div>
