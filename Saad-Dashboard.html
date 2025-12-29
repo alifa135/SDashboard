@@ -1,355 +1,198 @@
-import React, { useState, useMemo } from 'react';
-import { 
-  Building2, 
-  Search, 
-  TrendingUp, 
-  TrendingDown, 
-  Users, 
-  DollarSign, 
-  Calendar, 
-  Activity, 
-  Cpu, 
-  CreditCard, 
-  Server, 
-  Lightbulb, 
-  User,
-  Layers,
-  ShieldCheck,
-  GraduationCap,
-  AlertCircle,
-  BarChart3,
-  PieChart
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پایش جامع هلدینگ صاد</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vazir Font -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; background-color: #F1F5F9; }
+        .font-black { font-weight: 900; }
+        .company-card:hover { transform: translateY(-8px); shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="text-slate-800 p-4 md:p-8">
 
-const App = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  
-  // تاریخ مجمع ثابت برای همه شرکت‌ها طبق درخواست کاربر
-  const GENERAL_MEETING_DATE = "۱۴۰۴/۰۹/۳۰";
-
-  const subsidiariesData = [
-    { 
-      id: 1, 
-      name: 'پرداخت الکترونیک سپهر', 
-      shortName: 'سپهر (PAS)',
-      sector: 'پرداخت الکترونیک (PSP)', 
-      revenue: 1710, // همت
-      profit: 175, // میلیارد
-      employees: 1012, 
-      growth: 14, 
-      status: 'active',
-      ceoName: 'احمد پیشگاه زاده',
-      projects: ['پروژه کهربا', 'وامی‌پی', 'پورتال هوشمند'],
-      improvements: ['ارتقای رتبه شاپرک به ۵', 'کاهش پایانه‌های فاقد تراکنش'],
-      icon: <CreditCard size={20} />,
-      color: '#2563eb'
-    },
-    { 
-      id: 2, 
-      name: 'توسعه فناوری اطلاعات خوارزمی', 
-      shortName: 'مفاخر',
-      sector: 'زیرساخت و سخت‌افزار', 
-      revenue: 184, 
-      profit: 11, 
-      employees: 450, 
-      growth: 37, 
-      status: 'active',
-      ceoName: 'محمدحسین خروطی',
-      projects: ['نوسازی خودپردازها', 'پشتیبانی سراسری شعب'],
-      improvements: ['بهبود SLA خدمات'],
-      icon: <Server size={20} />,
-      color: '#10b981'
-    },
-    { 
-      id: 3, 
-      name: 'داده‌پردازی خوارزمی', 
-      shortName: 'داده‌پردازی',
-      sector: 'نرم‌افزار بانکی', 
-      revenue: 134.5, 
-      profit: 45, 
-      employees: 160, 
-      growth: 125, 
-      status: 'active',
-      ceoName: 'آرمین جعفری',
-      projects: ['سامانه HR', 'سامانه AML'],
-      improvements: ['حل چالش‌های ماژول HR'],
-      icon: <Cpu size={20} />,
-      color: '#f59e0b'
-    },
-    { 
-      id: 4, 
-      name: 'گسترش انفورماتیک ایران', 
-      shortName: 'گسترش',
-      sector: 'آموزش و ترویج', 
-      revenue: 3.4, 
-      profit: -2.3, // زیان‌ده
-      employees: 28, 
-      growth: -10, 
-      status: 'active',
-      ceoName: 'آقای عطاری',
-      projects: ['سامانه LMS'],
-      improvements: ['اصلاح ساختار هزینه‌ها'],
-      icon: <GraduationCap size={20} />,
-      color: '#64748b'
-    },
-    { 
-      id: 5, 
-      name: 'فناوری و راه‌حل‌های هوشمند سپهر', 
-      shortName: 'سپینو',
-      sector: 'بانکداری دیجیتال', 
-      revenue: 78, 
-      profit: 30, 
-      employees: 91, 
-      growth: 55, 
-      status: 'active',
-      ceoName: 'حمید ارجمندی',
-      projects: ['اپلیکیشن سپینو', 'چکنو'],
-      improvements: ['حل مشکل CVV2'],
-      icon: <Activity size={20} />,
-      color: '#8b5cf6'
-    },
-    { 
-      id: 6, 
-      name: 'پیشگامان فناوری‌های نوین صاد', 
-      shortName: 'پیشگامان',
-      sector: 'نوآوری و لندتک', 
-      revenue: 30, 
-      profit: 1.4, 
-      employees: 51, 
-      growth: 466, 
-      status: 'active',
-      ceoName: 'آقای هرمزی',
-      projects: ['پلتفرم لندتک', 'BNPL'],
-      improvements: ['توسعه مرکز تماس'],
-      icon: <Lightbulb size={20} />,
-      color: '#ec4899'
-    },
-    { 
-      id: 7, 
-      name: 'داده و هوش مصنوعی الگوریتم', 
-      shortName: 'الگوریتم',
-      sector: 'هوش مصنوعی', 
-      revenue: 26.1, 
-      profit: 0.2, 
-      employees: 14, 
-      growth: 10, 
-      status: 'active',
-      ceoName: 'حمید کریمی',
-      projects: ['سیگما', 'هویت دیجیتال'],
-      improvements: ['تجاری‌سازی محصولات'],
-      icon: <BarChart3 size={20} />,
-      color: '#06b6d4'
-    },
-    { 
-      id: 8, 
-      name: 'مدیریت راهبری و زیرساخت صاد', 
-      shortName: 'زیرساخت',
-      sector: 'امنیت و شبکه', 
-      revenue: 31, 
-      profit: 4.5, 
-      employees: 21, 
-      growth: 18, 
-      status: 'active',
-      ceoName: 'سعید جمالی',
-      projects: ['فیش‌آیز'],
-      improvements: ['برون‌سپاری خدمات'],
-      icon: <ShieldCheck size={20} />,
-      color: '#f43f5e'
-    },
-    { 
-      id: 9, 
-      name: 'توسعه فناوری اطلاعات هوشمند ماد', 
-      shortName: 'ماد',
-      sector: 'فناوری نوین', 
-      revenue: 0, 
-      profit: 0, 
-      employees: 5, 
-      growth: 0, 
-      status: 'founding',
-      ceoName: 'نامشخص',
-      projects: ['طراحی ساختار'],
-      improvements: ['ثبت قانونی'],
-      icon: <Layers size={20} />,
-      color: '#94a3b8'
-    },
-  ];
-
-  // محاسبه خلاصه مالی کل هلدینگ
-  const totalFinancials = useMemo(() => {
-    return subsidiariesData.reduce((acc, curr) => ({
-      revenue: acc.revenue + curr.revenue,
-      profit: acc.profit + curr.profit,
-      staff: acc.staff + curr.employees
-    }), { revenue: 0, profit: 0, staff: 0 });
-  }, []);
-
-  const filteredCompanies = useMemo(() => 
-    subsidiariesData.filter(c => c.name.includes(searchTerm) || c.sector.includes(searchTerm)),
-    [searchTerm]
-  );
-
-  return (
-    <div className="min-h-screen bg-[#F1F5F9] text-slate-800 p-4 md:p-8 font-sans" dir="rtl">
-      <div className="max-w-7xl mx-auto">
-        
-        {/* Header */}
-        <header className="flex flex-col md:flex-row items-center justify-between mb-10 gap-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-blue-700 rounded-3xl flex items-center justify-center text-white shadow-2xl">
-              <Building2 size={32} />
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row items-center justify-between mb-10 gap-6">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 bg-blue-700 rounded-3xl flex items-center justify-center text-white shadow-2xl">
+                    <i data-lucide="building-2" size="32"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black text-slate-900">هلدینگ فناوری و نوآوری صاد</h1>
+                    <p class="text-slate-500 text-sm font-bold mt-1">سامانه متمرکز پایش مالی و عملیاتی</p>
+                </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-black text-slate-900">هلدینگ فناوری و نوآوری صاد</h1>
-              <p className="text-slate-500 text-sm font-bold mt-1">سامانه متمرکز پایش مالی و عملیاتی</p>
+            <div class="relative w-full md:w-80">
+                <i data-lucide="search" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size="18"></i>
+                <input 
+                    type="text" 
+                    id="searchInput"
+                    placeholder="جستجو در شرکت‌ها..." 
+                    class="w-full bg-white border-none rounded-2xl pr-12 pl-4 py-4 text-sm shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                >
             </div>
-          </div>
-          <div className="relative w-full md:w-80">
-            <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input 
-              type="text" 
-              placeholder="جستجو در شرکت‌ها..." 
-              className="w-full bg-white border-none rounded-2xl pr-12 pl-4 py-4 text-sm shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
         </header>
 
-        {/* --- Consolidated Financial Report --- */}
-        <div className="bg-white rounded-[2.5rem] p-8 mb-10 border border-blue-100 shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-400"></div>
-            <div className="flex items-center gap-2 mb-6 text-blue-800">
-                <PieChart size={24} strokeWidth={2.5} />
-                <h2 className="text-lg font-black uppercase tracking-tighter">گزارش جامع مالی هلدینگ (تلفیقی)</h2>
+        <!-- Consolidated Financial Report -->
+        <div class="bg-white rounded-[2.5rem] p-8 mb-10 border border-blue-100 shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-400"></div>
+            <div class="flex items-center gap-2 mb-6 text-blue-800">
+                <i data-lucide="pie-chart" size="24"></i>
+                <h2 class="text-lg font-black uppercase tracking-tighter">گزارش جامع مالی هلدینگ (تلفیقی)</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100">
-                    <p className="text-[10px] font-black text-blue-500 mb-2">درآمد کل (همت)</p>
-                    <div className="flex items-end gap-2">
-                        <span className="text-3xl font-black text-blue-900">{totalFinancials.revenue.toLocaleString()}</span>
-                        <span className="text-xs font-bold text-blue-400 mb-1">HMT</span>
-                    </div>
-                </div>
-                <div className="bg-emerald-50 p-6 rounded-3xl border border-emerald-100">
-                    <p className="text-[10px] font-black text-emerald-500 mb-2">سود خالص کل (میلیارد)</p>
-                    <div className="flex items-end gap-2">
-                        <span className="text-3xl font-black text-emerald-900">{totalFinancials.profit.toFixed(1)}</span>
-                        <span className="text-xs font-bold text-emerald-400 mb-1">Mrd</span>
-                    </div>
-                </div>
-                <div className="bg-indigo-50 p-6 rounded-3xl border border-indigo-100">
-                    <p className="text-[10px] font-black text-indigo-500 mb-2">سرمایه انسانی (نفر)</p>
-                    <div className="flex items-end gap-2">
-                        <span className="text-3xl font-black text-indigo-900">{totalFinancials.staff.toLocaleString()}</span>
-                        <span className="text-xs font-bold text-indigo-400 mb-1">Staff</span>
-                    </div>
-                </div>
-                <div className="bg-amber-50 p-6 rounded-3xl border border-amber-100">
-                    <p className="text-[10px] font-black text-amber-600 mb-2">تاریخ مجمع عمومی</p>
-                    <div className="flex items-center gap-2 text-amber-900 font-black text-xl mt-2">
-                        <Calendar size={20} />
-                        {GENERAL_MEETING_DATE}
-                    </div>
-                </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="summaryStats">
+                <!-- Stats will be injected here -->
             </div>
         </div>
 
-        {/* --- Individual Companies Grid --- */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
-          {filteredCompanies.map((company) => (
-            <div 
-              key={company.id} 
-              className="bg-white rounded-[3rem] border border-slate-200 overflow-hidden hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 flex flex-col group"
-            >
-              {/* Header */}
-              <div className="p-6 pb-4 border-b border-slate-50 flex justify-between items-start">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg" style={{ backgroundColor: company.color }}>
-                    {company.icon}
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-black text-slate-900 leading-tight">{company.name}</h3>
-                    <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">{company.sector}</p>
-                  </div>
-                </div>
-                <div className={`px-3 py-1 rounded-full text-[9px] font-black ${company.profit >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
-                    {company.profit >= 0 ? 'سودده' : 'زیان‌ده'}
-                </div>
-              </div>
-
-              {/* Financial Metrics */}
-              <div className="px-6 py-4 grid grid-cols-2 gap-3 bg-slate-50/50">
-                <div className="flex flex-col">
-                    <span className="text-[9px] font-bold text-slate-400">درآمد عملیاتی</span>
-                    <span className="text-xs font-black text-slate-800">{company.revenue} همت</span>
-                </div>
-                <div className="flex flex-col">
-                    <span className="text-[9px] font-bold text-slate-400">سود خالص</span>
-                    <span className={`text-xs font-black ${company.profit < 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
-                        {company.profit} میلیارد
-                    </span>
-                </div>
-              </div>
-
-              {/* Details Content */}
-              <div className="p-6 space-y-5 flex-1">
-                <section>
-                    <h4 className="text-[10px] font-black text-blue-600 mb-2 flex items-center gap-1">
-                        <Activity size={12} /> پروژه‌های کلیدی
-                    </h4>
-                    <div className="flex flex-wrap gap-1.5">
-                        {company.projects.map(p => (
-                            <span key={p} className="text-[10px] font-bold bg-white border border-slate-100 px-2 py-1 rounded-lg text-slate-600">
-                                {p}
-                            </span>
-                        ))}
-                    </div>
-                </section>
-
-                <section className="bg-amber-50/50 p-4 rounded-2xl border border-amber-100">
-                    <h4 className="text-[10px] font-black text-amber-600 mb-2 flex items-center gap-1">
-                        <AlertCircle size={12} /> نقشه راه بهبود
-                    </h4>
-                    <ul className="space-y-1">
-                        {company.improvements.map(i => (
-                            <li key={i} className="text-[11px] font-bold text-slate-700 flex items-start gap-1">
-                                <span className="w-1 h-1 bg-amber-400 rounded-full mt-1.5 shrink-0"></span>
-                                {i}
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-              </div>
-
-              {/* Footer */}
-              <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center mt-auto">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center overflow-hidden">
-                        <User size={16} className="text-slate-300" />
-                    </div>
-                    <div className="flex flex-col leading-none">
-                        <span className="text-[8px] font-bold text-slate-400 mb-1">مدیرعامل</span>
-                        <span className="text-[10px] font-black text-slate-700">{company.ceoName}</span>
-                    </div>
-                </div>
-                <div className="text-left">
-                    <p className="text-[8px] font-bold text-slate-400 mb-1 uppercase">تاریخ مجمع</p>
-                    <p className="text-[10px] font-black text-blue-800 bg-blue-100 px-2 py-0.5 rounded-md">{GENERAL_MEETING_DATE}</p>
-                </div>
-              </div>
-            </div>
-          ))}
+        <!-- Individual Companies Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20" id="companiesGrid">
+            <!-- Cards will be injected here -->
         </div>
-      </div>
-
-      <style>{`
-        @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
-        body { font-family: 'Vazirmatn', sans-serif; }
-        .font-black { font-weight: 900; }
-      `}</style>
     </div>
-  );
-};
 
-export default App;
+    <script>
+        const GENERAL_MEETING_DATE = "۱۴۰۴/۰۹/۳۰";
+        
+        const subsidiariesData = [
+            { id: 1, name: 'پرداخت الکترونیک سپهر', sector: 'پرداخت الکترونیک (PSP)', revenue: 1710, profit: 175, employees: 1012, ceoName: 'احمد پیشگاه زاده', projects: ['پروژه کهربا', 'وامی‌پی', 'پورتال هوشمند'], improvements: ['ارتقای رتبه شاپرک به ۵', 'کاهش پایانه‌های فاقد تراکنش'], color: '#2563eb', icon: 'credit-card' },
+            { id: 2, name: 'توسعه فناوری اطلاعات خوارزمی', sector: 'زیرساخت و سخت‌افزار', revenue: 184, profit: 11, employees: 450, ceoName: 'محمدحسین خروطی', projects: ['نوسازی خودپردازها', 'پشتیبانی سراسری شعب'], improvements: ['بهبود SLA خدمات'], color: '#10b981', icon: 'server' },
+            { id: 3, name: 'داده‌پردازی خوارزمی', sector: 'نرم‌افزار بانکی', revenue: 134.5, profit: 45, employees: 160, ceoName: 'آرمین جعفری', projects: ['سامانه HR', 'سامانه AML'], improvements: ['حل چالش‌های ماژول HR'], color: '#f59e0b', icon: 'cpu' },
+            { id: 4, name: 'گسترش انفورماتیک ایران', sector: 'آموزش و ترویج', revenue: 3.4, profit: -2.3, employees: 28, ceoName: 'آقای عطاری', projects: ['سامانه LMS'], improvements: ['اصلاح ساختار هزینه‌ها'], color: '#64748b', icon: 'graduation-cap' },
+            { id: 5, name: 'فناوری و راه‌حل‌های هوشمند سپهر', sector: 'بانکداری دیجیتال', revenue: 78, profit: 30, employees: 91, ceoName: 'حمید ارجمندی', projects: ['اپلیکیشن سپینو', 'چکنو'], improvements: ['حل مشکل CVV2'], color: '#8b5cf6', icon: 'activity' },
+            { id: 6, name: 'پیشگامان فناوری‌های نوین صاد', sector: 'نوآوری و لندتک', revenue: 30, profit: 1.4, employees: 51, ceoName: 'آقای هرمزی', projects: ['پلتفرم لندتک', 'BNPL'], improvements: ['توسعه مرکز تماس'], color: '#ec4899', icon: 'lightbulb' },
+            { id: 7, name: 'داده و هوش مصنوعی الگوریتم', sector: 'هوش مصنوعی', revenue: 26.1, profit: 0.2, employees: 14, ceoName: 'حمید کریمی', projects: ['سیگما', 'هویت دیجیتال'], improvements: ['تجاری‌سازی محصولات'], color: '#06b6d4', icon: 'bar-chart-3' },
+            { id: 8, name: 'مدیریت راهبری و زیرساخت صاد', sector: 'امنیت و شبکه', revenue: 31, profit: 4.5, employees: 21, ceoName: 'سعید جمالی', projects: ['فیش‌آیز'], improvements: ['برون‌سپاری خدمات'], color: '#f43f5e', icon: 'shield-check' },
+            { id: 9, name: 'توسعه فناوری اطلاعات هوشمند ماد', sector: 'فناوری نوین', revenue: 0, profit: 0, employees: 5, ceoName: 'نامشخص', projects: ['طراحی ساختار'], improvements: ['ثبت قانونی'], color: '#94a3b8', icon: 'layers' }
+        ];
+
+        function renderSummary() {
+            const stats = subsidiariesData.reduce((acc, curr) => ({
+                revenue: acc.revenue + curr.revenue,
+                profit: acc.profit + curr.profit,
+                staff: acc.staff + curr.employees
+            }), { revenue: 0, profit: 0, staff: 0 });
+
+            const summaryHtml = `
+                <div class="bg-blue-50 p-6 rounded-3xl border border-blue-100">
+                    <p class="text-[10px] font-black text-blue-500 mb-2">درآمد کل (همت)</p>
+                    <div class="flex items-end gap-2">
+                        <span class="text-3xl font-black text-blue-900">${stats.revenue.toLocaleString()}</span>
+                        <span class="text-xs font-bold text-blue-400 mb-1 text-rtl">همت</span>
+                    </div>
+                </div>
+                <div class="bg-emerald-50 p-6 rounded-3xl border border-emerald-100">
+                    <p class="text-[10px] font-black text-emerald-500 mb-2">سود خالص کل (میلیارد)</p>
+                    <div class="flex items-end gap-2">
+                        <span class="text-3xl font-black text-emerald-900">${stats.profit.toFixed(1)}</span>
+                        <span class="text-xs font-bold text-emerald-400 mb-1">Mrd</span>
+                    </div>
+                </div>
+                <div class="bg-indigo-50 p-6 rounded-3xl border border-indigo-100">
+                    <p class="text-[10px] font-black text-indigo-500 mb-2">سرمایه انسانی (نفر)</p>
+                    <div class="flex items-end gap-2">
+                        <span class="text-3xl font-black text-indigo-900">${stats.staff.toLocaleString()}</span>
+                        <span class="text-xs font-bold text-indigo-400 mb-1">Staff</span>
+                    </div>
+                </div>
+                <div class="bg-amber-50 p-6 rounded-3xl border border-amber-100">
+                    <p class="text-[10px] font-black text-amber-600 mb-2">تاریخ مجمع عمومی</p>
+                    <div class="flex items-center gap-2 text-amber-900 font-black text-xl mt-2 italic">
+                        <i data-lucide="calendar" size="20"></i> ${GENERAL_MEETING_DATE}
+                    </div>
+                </div>
+            `;
+            document.getElementById('summaryStats').innerHTML = summaryHtml;
+        }
+
+        function renderGrid(data) {
+            const gridHtml = data.map(company => `
+                <div class="bg-white rounded-[3rem] border border-slate-200 overflow-hidden shadow-sm transition-all duration-500 flex flex-col hover:shadow-2xl hover:-translate-y-2 group">
+                    <div class="p-6 pb-4 border-b border-slate-50 flex justify-between items-start">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-lg" style="background-color: ${company.color}">
+                                <i data-lucide="${company.icon}" size="24"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-black text-slate-900 leading-tight">${company.name}</h3>
+                                <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-tighter">${company.sector}</p>
+                            </div>
+                        </div>
+                        <div class="px-3 py-1 rounded-full text-[9px] font-black ${company.profit >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                            ${company.profit >= 0 ? 'سودده' : 'زیان‌ده'}
+                        </div>
+                    </div>
+                    <div class="px-6 py-4 grid grid-cols-2 gap-3 bg-slate-50/50">
+                        <div class="flex flex-col">
+                            <span class="text-[9px] font-bold text-slate-400">درآمد عملیاتی</span>
+                            <span class="text-xs font-black text-slate-800">${company.revenue} همت</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-[9px] font-bold text-slate-400">سود خالص</span>
+                            <span class="text-xs font-black ${company.profit < 0 ? 'text-rose-600' : 'text-emerald-600'}">${company.profit} میلیارد</span>
+                        </div>
+                    </div>
+                    <div class="p-6 space-y-5 flex-1">
+                        <section>
+                            <h4 class="text-[10px] font-black text-blue-600 mb-2">● پروژه‌های کلیدی</h4>
+                            <div class="flex flex-wrap gap-1.5">
+                                ${company.projects.map(p => `<span class="text-[10px] font-bold bg-white border border-slate-100 px-2 py-1 rounded-lg text-slate-600">${p}</span>`).join('')}
+                            </div>
+                        </section>
+                        <section class="bg-amber-50/50 p-4 rounded-2xl border border-amber-100">
+                            <h4 class="text-[10px] font-black text-amber-600 mb-2 flex items-center gap-1">اولویتهای اصلاحی</h4>
+                            <ul class="space-y-1">
+                                ${company.improvements.map(i => `<li class="text-[11px] font-bold text-slate-700 flex items-start gap-1"><span class="w-1 h-1 bg-amber-400 rounded-full mt-1.5 shrink-0"></span>${i}</li>`).join('')}
+                            </ul>
+                        </section>
+                    </div>
+                    <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-between items-center mt-auto">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center">
+                                <i data-lucide="user" size="16" class="text-slate-300"></i>
+                            </div>
+                            <div class="flex flex-col leading-none">
+                                <span class="text-[8px] font-bold text-slate-400 mb-1 uppercase">مدیرعامل</span>
+                                <span class="text-[10px] font-black text-slate-700">${company.ceoName}</span>
+                            </div>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-[8px] font-bold text-slate-400 mb-1 uppercase">تاریخ مجمع</p>
+                            <p class="text-[10px] font-black text-blue-800 bg-blue-100 px-2 py-0.5 rounded-md">${GENERAL_MEETING_DATE}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('companiesGrid').innerHTML = gridHtml;
+            lucide.createIcons();
+        }
+
+        // Search Filter
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = subsidiariesData.filter(c => 
+                c.name.includes(term) || c.sector.includes(term) || c.ceoName.includes(term)
+            );
+            renderGrid(filtered);
+        });
+
+        // Initialize
+        window.onload = () => {
+            renderSummary();
+            renderGrid(subsidiariesData);
+        };
+    </script>
+</body>
+</html>
 
